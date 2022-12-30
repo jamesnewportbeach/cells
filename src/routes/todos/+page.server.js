@@ -1,30 +1,33 @@
 import { error, invalid, redirect } from "@sveltejs/kit";
 import { data } from "@serverless/cloud";
 import { v4 as uuid } from "@lukeed/uuid";
-import type { PageServerLoad, Actions } from "./$types";
 
-type Todo = {
-  uid: string;
-  created_at: Date;
-  text: string;
-  done: boolean;
-  pending_delete: boolean;
-};
+/**
+ * @typedef {{
+ *   uid: string;
+ *   created_at: Date;
+ *   text: string;
+ *   done: boolean;
+ *   pending_delete: boolean;
+ * }} Todo
+ */
 
-export const load: PageServerLoad = async ({ locals }) => {
+/** @type {import('./$types').PageServerLoad} */
+export const load = async ({ locals }) => {
   // locals.userid comes from src/hooks.js
   try {
-    const response = await data.get<Todo[]>(`todo#${locals.userid}:*`);
+    const response = await data.get(`todo#${locals.userid}:*`);
     return {
       status: 200,
       todos: response.items.map((item) => item.value),
     };
-  } catch (e: any) {
+  } catch (e) {
     throw error(500);
   }
 };
 
-export const actions: Actions = {
+/** @type {import('./$types').Actions} */
+export const actions = {
   add: async ({ request, locals }) => {
     const form = await request.formData();
     const text = form.get("text");
@@ -42,7 +45,7 @@ export const actions: Actions = {
   edit: async ({ request, locals }) => {
     const form = await request.formData();
     const uid = form.get("uid");
-    const todo = await data.get<Todo>(`todo#${locals.userid}:${uid}`);
+    const todo = await data.get(`todo#${locals.userid}:${uid}`);
     if (todo) {
       Object.assign(todo, {
         text: form.has("text") ? form.get("text") : todo.text,
@@ -60,9 +63,9 @@ export const actions: Actions = {
     const form = await request.formData();
     const isDone = !!form.get("done");
     const uid = form.get("uid");
-    const todo = await data.get<Todo>(`todo#${locals.userid}:${uid}`);
+    const todo = await data.get(`todo#${locals.userid}:${uid}`);
     if (todo) {
-      await data.set<Todo>(`todo#${locals.userid}:${uid}`, {
+      await data.set(`todo#${locals.userid}:${uid}`, {
         done: isDone,
       });
       return { status: 200 };
