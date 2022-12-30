@@ -19,6 +19,11 @@
 		to your new<br />SvelteKit app
 	</h1>
 
+	<button class="btn">Button</button>
+
+	<button class="btn btn-primary">Button</button>
+	
+
 	<h2>
 		try editing <strong>src/routes/+page.svelte</strong>
 	</h2>
